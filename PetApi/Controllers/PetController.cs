@@ -31,8 +31,8 @@ namespace PetApi.Controllers
             return pets.FindLast(item => item.name == name);
         }
 
-        [HttpDelete("deleteAllName/{name}")]
-        public IActionResult DeletePetByName([FromRoute] string name)
+        [HttpDelete("deleteByName")]
+        public IActionResult DeletePetByName([FromQuery] string name)
         {
             pets.RemoveAll(item => item.name == name);
             return Ok();

@@ -65,5 +65,26 @@ namespace PetApiTest.ControllerTest
             var petGet = JsonConvert.DeserializeObject<Pet>(responseBody);
             Assert.Equal(pet, petGet);
         }
+
+        [Fact]
+        public async void Should_delete_pet_when_delete_given_name_to_system_successfully()
+        {
+            var application = new WebApplicationFactory<Program>();
+            var httpClient = application.CreateClient();
+
+            var pet = new Pet(name: "Kitty", type: "cat", color: "white", price: 1000);
+            var serializeObject = JsonConvert.SerializeObject(pet);
+            var postBody = new StringContent(serializeObject, Encoding.UTF8, "application/json");
+            _ = await httpClient.PostAsync("/api/addNewPet", postBody);
+
+            var responseDelete = await httpClient.DeleteAsync("/api/deleteByName?name=Kitty");
+
+            responseDelete.EnsureSuccessStatusCode();
+
+            var responseGet = await httpClient.GetAsync("/api/getPetByName?name=Kitty");
+            var responseGetBody = await responseGet.Content.ReadAsStringAsync();
+            var petGet = JsonConvert.DeserializeObject<Pet>(responseGetBody);
+            Assert.Null(petGet);
+        }
     }
 }
