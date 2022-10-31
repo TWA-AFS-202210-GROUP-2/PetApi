@@ -171,4 +171,24 @@ public class PetController
         var whitePets = JsonConvert.DeserializeObject<List<Pet>>(responseBody);
         Assert.Equal(pet, whitePets[0]);
     }
+
+    [Fact]
+    public async void Should_return_pets_by_price_range_from_system_seccessfully()
+    {
+        //given
+        var application = new WebApplicationFactory<Program>();
+        var httpClient = application.CreateClient();
+        await httpClient.DeleteAsync("/api/deleteAllPets");
+        var pet = new Pet(name: "Kitty", type: "cat", color: "white", price: 1000);
+        var serializeObject = JsonConvert.SerializeObject(pet); //–Ú¡–ªØ
+        var postBody = new StringContent(serializeObject, Encoding.UTF8, mediaType: "application/json");
+        await httpClient.PostAsync("/api/addNewPet", postBody);
+        //when
+        var response = await httpClient.GetAsync("/api/findPetsByPriceRange?startPrice=500&endPrice=1500");
+        //then
+        response.EnsureSuccessStatusCode();
+        var responseBody = await response.Content.ReadAsStringAsync();
+        var petsBetweenPriceRange = JsonConvert.DeserializeObject<List<Pet>>(responseBody);
+        Assert.Equal(pet, petsBetweenPriceRange[0]);
+    }
 }

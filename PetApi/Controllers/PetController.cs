@@ -56,6 +56,12 @@ namespace PetApi.Controllers
             return pets.Where(pet => pet.Color.Equals(color)).ToList();
         }
 
+        [HttpGet("findPetsByPriceRange")]
+        public List<Pet> FindPetsByPriceRange([FromQuery] int startPrice, int endPrice)
+        {
+            return pets.Where(pet => pet.Price >= startPrice && pet.Price <= endPrice).ToList();
+        }
+
         [HttpDelete("deleteAllPets")]
         public void DeleteAllPets()
         {
