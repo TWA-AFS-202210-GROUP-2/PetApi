@@ -135,7 +135,42 @@ namespace PetApiTest.ControllerTest
             var responseGetBody = await responseGet.Content.ReadAsStringAsync();
             var petsGet = JsonConvert.DeserializeObject<List<Pet>>(responseGetBody);
             var petsGroupByType = pets.Where(item => item.type == "dog").ToList();
+
+            _ = await httpClient.DeleteAsync("/api/deleteAllPets");
+
+            var responseDelete = await httpClient.DeleteAsync("/api/deleteByName?name=Kitty");
             Assert.Equal(petsGroupByType.Union(petsGet).Count(), 2);
+        }
+
+        [Fact]
+        public async void Should_return_same_color_pets_when_get_by_type_given_color_to_system_successfully()
+        {
+            var application = new WebApplicationFactory<Program>();
+            var httpClient = application.CreateClient();
+
+            var pets = new List<Pet>
+            {
+                new Pet(name: "Kitty", type: "cat", color: "white", price: 1000),
+                new Pet(name: "Kitty", type: "dog", color: "red", price: 2000),
+                new Pet(name: "Aitty", type: "cat", color: "red", price: 1500),
+            };
+            foreach (var pet in pets)
+            {
+                var serializeObject = JsonConvert.SerializeObject(pet);
+                var postBody = new StringContent(serializeObject, Encoding.UTF8, "application/json");
+                _ = await httpClient.PostAsync("/api/addNewPet", postBody);
+            }
+
+            var responseGet = await httpClient.GetAsync("/api/getPetsByRange?upperBound=1001&lowerBound=200");
+            responseGet.EnsureSuccessStatusCode();
+
+            var responseGetBody = await responseGet.Content.ReadAsStringAsync();
+            var petsGet = JsonConvert.DeserializeObject<List<Pet>>(responseGetBody);
+            var petsGroupByType = pets.Where(item => item.price <= 1001 && item.price >= 200).ToList();
+
+            _ = await httpClient.DeleteAsync("/api/deleteAllPets");
+
+            Assert.Equal(petsGroupByType, petsGet);
         }
     }
 }
