@@ -49,11 +49,11 @@ namespace PetApi.Controllers
         }
 
         [HttpPut("changePrice")]
-        public Pet ChangePrice([FromQuery] string name, [FromQuery] int price)
+        public List<Pet> ChangePrice([FromQuery] string name, Pet pet)
         {
-            Pet pet = pets.Find(x => x.Name.Equals(name));
-            pet.Price = price;
-            return pet;
+            pets.RemoveAll(x => x.Name.Equals(name));
+            pets.Add(pet);
+            return pets;
         }
 
         [HttpGet("getByColor")]

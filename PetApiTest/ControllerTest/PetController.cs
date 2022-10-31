@@ -58,7 +58,7 @@ public class PetController
         var stringContent = new StringContent(serializeObject, Encoding.UTF8, "application/json");
         // when
         await httpClient.PostAsync("api/addNewPet", stringContent);
-        var response = await httpClient.GetAsync($"api/addNewPet?type={pet.Type}");
+        var response = await httpClient.GetAsync($"api/getByType?type={pet.Type}");
         // then
         response.EnsureSuccessStatusCode();
         var readAsStringAsync = await response.Content.ReadAsStringAsync();
@@ -77,7 +77,7 @@ public class PetController
         var stringContent = new StringContent(serializeObject, Encoding.UTF8, "application/json");
         // when
         await httpClient.PostAsync("api/addNewPet", stringContent);
-        var response = await httpClient.GetAsync($"api/addNewPet?color={pet.Color}");
+        var response = await httpClient.GetAsync($"api/getByColor?color={pet.Color}");
         // then
         response.EnsureSuccessStatusCode();
         var readAsStringAsync = await response.Content.ReadAsStringAsync();
@@ -96,7 +96,7 @@ public class PetController
         var stringContent = new StringContent(serializeObject, Encoding.UTF8, "application/json");
         // when
         await httpClient.PostAsync("api/addNewPet", stringContent);
-        var response = await httpClient.GetAsync($"api/addNewPet?upper={pet.Price + 50}&lower={pet.Price - 50}");
+        var response = await httpClient.GetAsync($"api/getByPrice?upper={pet.Price + 50}&lower={pet.Price - 50}");
         // then
         response.EnsureSuccessStatusCode();
         var readAsStringAsync = await response.Content.ReadAsStringAsync();
@@ -115,12 +115,12 @@ public class PetController
         var stringContent = new StringContent(serializeObject, Encoding.UTF8, "application/json");
         // when
         await httpClient.PostAsync("api/addNewPet", stringContent);
-        var response = await httpClient.DeleteAsync($"api/addNewPet?name={pet.Name}");
+        var response = await httpClient.DeleteAsync($"api/deleteByName?name={pet.Name}");
         // then
         response.EnsureSuccessStatusCode();
         var readAsStringAsync = await response.Content.ReadAsStringAsync();
         var savedPet = JsonConvert.DeserializeObject<List<Pet>>(readAsStringAsync);
-        Assert.Equal(null, savedPet[0]);
+        Assert.Equal(0, savedPet.Count);
     }
 
     [Fact]
@@ -137,7 +137,7 @@ public class PetController
         var stringContent2 = new StringContent(price, Encoding.UTF8, "application/json");
         // when
         await httpClient.PostAsync("api/addNewPet", stringContent);
-        var response = await httpClient.PutAsync($"api/addNewPet?name={pet.Name}", stringContent2);
+        var response = await httpClient.PutAsync($"api/changePrice?name={pet.Name}", stringContent2);
         // then
         response.EnsureSuccessStatusCode();
         var readAsStringAsync = await response.Content.ReadAsStringAsync();
