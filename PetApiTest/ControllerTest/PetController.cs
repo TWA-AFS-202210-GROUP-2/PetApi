@@ -86,5 +86,28 @@ namespace PetApiTest.ControllerTest
             var petGet = JsonConvert.DeserializeObject<Pet>(responseGetBody);
             Assert.Null(petGet);
         }
+
+        [Fact]
+        public async void Should_return_updated_pet_when_put_given_new_price_to_system_successfully()
+        {
+            var application = new WebApplicationFactory<Program>();
+            var httpClient = application.CreateClient();
+
+            var pet = new Pet(name: "Kitty", type: "cat", color: "white", price: 1000);
+            var petNew = new Pet(name: "Kitty", type: "cat", color: "white", price: 2000);
+            var serializeObject = JsonConvert.SerializeObject(pet);
+            var serializeObjectNew = JsonConvert.SerializeObject(petNew);
+            var postBody = new StringContent(serializeObject, Encoding.UTF8, "application/json");
+            var putBody = new StringContent(serializeObjectNew, Encoding.UTF8, "application/json");
+            _ = await httpClient.PostAsync("/api/addNewPet", postBody);
+            var responsePut = await httpClient.PutAsync("/api/updatePet", putBody);
+
+            responsePut.EnsureSuccessStatusCode();
+
+            var responseGet = await httpClient.GetAsync("/api/getPetByName?name=Kitty");
+            var responseGetBody = await responseGet.Content.ReadAsStringAsync();
+            var petGet = JsonConvert.DeserializeObject<Pet>(responseGetBody);
+            Assert.Equal(pet, petGet);
+        }
     }
 }

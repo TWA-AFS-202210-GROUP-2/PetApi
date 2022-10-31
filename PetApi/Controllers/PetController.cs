@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using PetApi.Model;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace PetApi.Controllers
 {
@@ -35,6 +36,14 @@ namespace PetApi.Controllers
         public IActionResult DeletePetByName([FromQuery] string name)
         {
             pets.RemoveAll(item => item.name == name);
+            return Ok();
+        }
+
+        [HttpPut("updatePet")]
+        public IActionResult UpdatePet(Pet pet)
+        {
+            pets.Where(item => item.name == pet.name).Select(item => item.price = pet.price);
+                
             return Ok();
         }
     }
