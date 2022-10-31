@@ -18,7 +18,7 @@ public class PetController
         var application = new WebApplicationFactory<Program>();
         var httpClient = application.CreateClient();
         await httpClient.DeleteAsync("/api/deleteAllPets");
-        var pet = new Pet(name: "Kitty", type: "cat", age: 1, price: 1000);
+        var pet = new Pet(name: "Kitty", type: "cat", color: "white", price: 1000);
         var serializeObject = JsonConvert.SerializeObject(pet);
         var stringContent = new StringContent(serializeObject, Encoding.UTF8, "application/json");
         var response = await httpClient.PostAsync("api/addNewPet", stringContent);
@@ -34,7 +34,7 @@ public class PetController
         var application = new WebApplicationFactory<Program>();
         var httpClient = application.CreateClient();
         await httpClient.DeleteAsync("/api/deleteAllPets");
-        var pet = new Pet(name: "Kitty", type: "cat", age: 1, price: 1000);
+        var pet = new Pet(name: "Kitty", type: "cat", color: "white", price: 1000);
         var serializeObject = JsonConvert.SerializeObject(pet);
         var stringContent = new StringContent(serializeObject, Encoding.UTF8, "application/json");
         // when
@@ -48,17 +48,55 @@ public class PetController
     }
 
     [Fact]
-    public async Task Should_return_get_pet_success_from_get_pet_name()
+    public async Task Should_return_get_pet_success_from_get_pet_type()
     {
         var application = new WebApplicationFactory<Program>();
         var httpClient = application.CreateClient();
         await httpClient.DeleteAsync("/api/deleteAllPets");
-        var pet = new Pet(name: "Kitty", type: "cat", age: 1, price: 1000);
+        var pet = new Pet(name: "Kitty", type: "cat", color: "white", price: 1000);
         var serializeObject = JsonConvert.SerializeObject(pet);
         var stringContent = new StringContent(serializeObject, Encoding.UTF8, "application/json");
         // when
         await httpClient.PostAsync("api/addNewPet", stringContent);
-        var response = await httpClient.GetAsync("api/getAllPets");
+        var response = await httpClient.GetAsync($"api/addNewPet?type={pet.Type}");
+        // then
+        response.EnsureSuccessStatusCode();
+        var readAsStringAsync = await response.Content.ReadAsStringAsync();
+        var savedPet = JsonConvert.DeserializeObject<List<Pet>>(readAsStringAsync);
+        Assert.Equal(pet, savedPet[0]);
+    }
+
+    [Fact]
+    public async Task Should_return_get_pet_success_from_get_pet_color()
+    {
+        var application = new WebApplicationFactory<Program>();
+        var httpClient = application.CreateClient();
+        await httpClient.DeleteAsync("/api/deleteAllPets");
+        var pet = new Pet(name: "Kitty", type: "cat", color: "white", price: 1000);
+        var serializeObject = JsonConvert.SerializeObject(pet);
+        var stringContent = new StringContent(serializeObject, Encoding.UTF8, "application/json");
+        // when
+        await httpClient.PostAsync("api/addNewPet", stringContent);
+        var response = await httpClient.GetAsync($"api/addNewPet?color={pet.Color}");
+        // then
+        response.EnsureSuccessStatusCode();
+        var readAsStringAsync = await response.Content.ReadAsStringAsync();
+        var savedPet = JsonConvert.DeserializeObject<List<Pet>>(readAsStringAsync);
+        Assert.Equal(pet, savedPet[0]);
+    }
+
+    [Fact]
+    public async Task Should_return_get_pet_success_from_get_pet_price()
+    {
+        var application = new WebApplicationFactory<Program>();
+        var httpClient = application.CreateClient();
+        await httpClient.DeleteAsync("/api/deleteAllPets");
+        var pet = new Pet(name: "Kitty", type: "cat", color: "white", price: 1000);
+        var serializeObject = JsonConvert.SerializeObject(pet);
+        var stringContent = new StringContent(serializeObject, Encoding.UTF8, "application/json");
+        // when
+        await httpClient.PostAsync("api/addNewPet", stringContent);
+        var response = await httpClient.GetAsync($"api/addNewPet?upper={pet.Price + 50}&lower={pet.Price - 50}");
         // then
         response.EnsureSuccessStatusCode();
         var readAsStringAsync = await response.Content.ReadAsStringAsync();
@@ -72,16 +110,38 @@ public class PetController
         var application = new WebApplicationFactory<Program>();
         var httpClient = application.CreateClient();
         await httpClient.DeleteAsync("/api/deleteAllPets");
-        var pet = new Pet(name: "Kitty", type: "cat", age: 1, price: 1000);
+        var pet = new Pet(name: "Kitty", type: "cat", color: "white", price: 1000);
         var serializeObject = JsonConvert.SerializeObject(pet);
         var stringContent = new StringContent(serializeObject, Encoding.UTF8, "application/json");
         // when
         await httpClient.PostAsync("api/addNewPet", stringContent);
-        var response = await httpClient.GetAsync("api/getAllPets");
+        var response = await httpClient.DeleteAsync($"api/addNewPet?name={pet.Name}");
         // then
         response.EnsureSuccessStatusCode();
         var readAsStringAsync = await response.Content.ReadAsStringAsync();
         var savedPet = JsonConvert.DeserializeObject<List<Pet>>(readAsStringAsync);
-        Assert.Equal(pet, savedPet[0]);
+        Assert.Equal(null, savedPet[0]);
+    }
+
+    [Fact]
+    public async Task Should_return_change_pet_success_from_change_pet()
+    {
+        var application = new WebApplicationFactory<Program>();
+        var httpClient = application.CreateClient();
+        await httpClient.DeleteAsync("/api/deleteAllPets");
+        var pet = new Pet(name: "Kitty", type: "cat", color: "white", price: 1000);
+        var serializeObject = JsonConvert.SerializeObject(pet);
+        var stringContent = new StringContent(serializeObject, Encoding.UTF8, "application/json");
+        var newPet = new Pet(name: "Kitty", type: "cat", color: "white", price: 2000);
+        var price = JsonConvert.SerializeObject(newPet);
+        var stringContent2 = new StringContent(price, Encoding.UTF8, "application/json");
+        // when
+        await httpClient.PostAsync("api/addNewPet", stringContent);
+        var response = await httpClient.PutAsync($"api/addNewPet?name={pet.Name}", stringContent2);
+        // then
+        response.EnsureSuccessStatusCode();
+        var readAsStringAsync = await response.Content.ReadAsStringAsync();
+        var savedPet = JsonConvert.DeserializeObject<List<Pet>>(readAsStringAsync);
+        Assert.Equal(newPet, savedPet[0]);
     }
 }
