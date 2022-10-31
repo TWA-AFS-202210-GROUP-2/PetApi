@@ -44,6 +44,12 @@ namespace PetApi.Controllers
             return modifyPet;
         }
 
+        [HttpGet("findPetsByType")]
+        public List<Pet> FindPetsByType([FromQuery] string type)
+        {
+            return pets.Where(pet => pet.Type.Equals(type)).ToList();
+        }
+
         [HttpDelete("deleteAllPets")]
         public void DeleteAllPets()
         {
