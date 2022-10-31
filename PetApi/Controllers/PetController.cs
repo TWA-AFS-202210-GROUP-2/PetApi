@@ -28,12 +28,13 @@ namespace PetApi.Controllers
             return pets.First(pet => pet.Name.Equals(name));
         }
 
-        /*[HttpDelete("deletePetByName")]
-        public bool DeletePetByName([FromBody] string name)
+        [HttpDelete("deletePetByName")]
+        public List<Pet> DeletePetByName([FromQuery] string name)
         {
             Pet pet = pets.First(pet => pet.Name.Equals(name));
-            return pets.Remove(pet);
-        }*/
+            pets.Remove(pet);
+            return pets;
+        }
 
         [HttpDelete("deleteAllPets")]
         public void DeleteAllPets()
