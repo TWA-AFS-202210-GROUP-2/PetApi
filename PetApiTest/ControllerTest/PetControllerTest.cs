@@ -108,4 +108,27 @@ public class PetController
         var afterDeletePets = JsonConvert.DeserializeObject<List<Pet>>(responseBody);
         Assert.Empty(afterDeletePets);
     }
+
+    [Fact]
+    public async void Should_modify_pet_price_by_name_from_system_seccessfully()
+    {
+        //given
+        var application = new WebApplicationFactory<Program>();
+        var httpClient = application.CreateClient();
+        await httpClient.DeleteAsync("/api/deleteAllPets");
+        var pet = new Pet(name: "Kitty", type: "cat", color: "white", price: 1000);
+        var serializeObject = JsonConvert.SerializeObject(pet); //序列化
+        var postBody = new StringContent(serializeObject, Encoding.UTF8, mediaType: "application/json");
+        await httpClient.PostAsync("/api/addNewPet", postBody);
+        pet.Price = 2000;
+        var serializeModifyObject = JsonConvert.SerializeObject(pet); //序列化
+        var putBody = new StringContent(serializeModifyObject, Encoding.UTF8, mediaType: "application/json");
+        //when
+        var response = await httpClient.PutAsync("/api/modifyPrice", putBody);
+        //then
+        response.EnsureSuccessStatusCode();
+        var responseBody = await response.Content.ReadAsStringAsync();
+        var modifyPet = JsonConvert.DeserializeObject<Pet>(responseBody);
+        Assert.Equal(pet, modifyPet);
+    }
 }

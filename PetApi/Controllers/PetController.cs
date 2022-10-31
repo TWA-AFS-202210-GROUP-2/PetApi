@@ -36,6 +36,14 @@ namespace PetApi.Controllers
             return pets;
         }
 
+        [HttpPut("modifyPrice")]
+        public Pet ModifyPriceByName(Pet pet)
+        {
+            Pet modifyPet = pets.First(oldPet => oldPet.Name.Equals(pet.Name));
+            modifyPet.Price = pet.Price;
+            return modifyPet;
+        }
+
         [HttpDelete("deleteAllPets")]
         public void DeleteAllPets()
         {
