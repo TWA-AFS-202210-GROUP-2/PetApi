@@ -6,6 +6,7 @@ using System.Net.Http;
 using System.Text;
 using PetApi.Model;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace PetApiTest.ControllerTest
 {
@@ -30,7 +31,6 @@ namespace PetApiTest.ControllerTest
             Assert.Equal(pet, savePet);
         }
 
-        [Fact]
         public async void Should_get_pet_to_system_successfully()
         {
             var application = new WebApplicationFactory<Program>();
@@ -108,6 +108,34 @@ namespace PetApiTest.ControllerTest
             var responseGetBody = await responseGet.Content.ReadAsStringAsync();
             var petGet = JsonConvert.DeserializeObject<Pet>(responseGetBody);
             Assert.Equal(pet, petGet);
+        }
+
+        [Fact]
+        public async void Should_return_same_type_pets_when_get_by_type_given_type_to_system_successfully()
+        {
+            var application = new WebApplicationFactory<Program>();
+            var httpClient = application.CreateClient();
+
+            var pets = new List<Pet>
+            {
+                new Pet(name: "Kitty", type: "cat", color: "white", price: 1000),
+                new Pet(name: "Kitty", type: "dog", color: "white", price: 2000),
+                new Pet(name: "Aitty", type: "cat", color: "white", price: 1500),
+            };
+            foreach (var pet in pets)
+            {
+                var serializeObject = JsonConvert.SerializeObject(pet);
+                var postBody = new StringContent(serializeObject, Encoding.UTF8, "application/json");
+                _ = await httpClient.PostAsync("/api/addNewPet", postBody);
+            }
+
+            var responseGet = await httpClient.GetAsync("/api/getPetsByType?type=dog");
+            responseGet.EnsureSuccessStatusCode();
+
+            var responseGetBody = await responseGet.Content.ReadAsStringAsync();
+            var petsGet = JsonConvert.DeserializeObject<List<Pet>>(responseGetBody);
+            var petsGroupByType = pets.Where(item => item.type == "dog").ToList();
+            Assert.Equal(petsGroupByType.Union(petsGet).Count(), 2);
         }
     }
 }
