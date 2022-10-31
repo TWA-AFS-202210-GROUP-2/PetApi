@@ -50,6 +50,12 @@ namespace PetApi.Controllers
             return pets.Where(pet => pet.Type.Equals(type)).ToList();
         }
 
+        [HttpGet("findPetsByColor")]
+        public List<Pet> FindPetsByColor([FromQuery] string color)
+        {
+            return pets.Where(pet => pet.Color.Equals(color)).ToList();
+        }
+
         [HttpDelete("deleteAllPets")]
         public void DeleteAllPets()
         {
